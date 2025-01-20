@@ -1,17 +1,15 @@
-import React, { useState } from 'react';
-import { QrReader } from 'react-qr-reader';
+import React, { useState, useEffect, useRef } from 'react';
+import { BrowserMultiFormatReader } from '@zxing/browser';
 
 const QRScanner = () => {
   const [slotNumber, setSlotNumber] = useState('');
   const [isScanning, setIsScanning] = useState(false);
+  const videoRef = useRef(null);
 
-  const handleScan = (result, error) => {
+  const handleScan = (result) => {
     if (result) {
       setSlotNumber(result.text);
       setIsScanning(false);
-    }
-    if (error) {
-      console.error(error);
     }
   };
 
@@ -41,25 +39,40 @@ const QRScanner = () => {
     }
   };
 
+  useEffect(() => {
+    if (isScanning) {
+      const codeReader = new BrowserMultiFormatReader();
+      codeReader.decodeFromVideoDevice(null, videoRef.current, (result, error) => {
+        if (result) {
+          handleScan(result);
+          codeReader.reset(); // Stop scanning after reading
+        }
+        if (error) {
+          console.error(error.message);
+        }
+      });
+
+      return () => {
+        codeReader.reset(); // Cleanup on component unmount
+      };
+    }
+  }, [isScanning]);
+
   return (
     <div className="flex flex-col items-center justify-center h-screen bg-gray-100 font-sans">
       <h1 className="text-xl font-bold mb-6">SCAN QR</h1>
       <div className="w-64 h-64 border-2 border-gray-400 rounded-lg flex items-center justify-center mb-6 relative">
-  {!isScanning ? (
-    <div
-      className="w-full h-full flex items-center justify-center cursor-pointer absolute top-0 left-0"
-      onClick={() => setIsScanning(true)}
-    >
-      <p className="text-gray-600 text-sm">Tap to Scan</p>
-    </div>
-  ) : (
-    <QrReader
-      delay={300}
-      onResult={handleScan}
-      style={{ width: '100%', height: '100%' }}
-    />
-  )}
-</div>
+        {!isScanning ? (
+          <div
+            className="w-full h-full flex items-center justify-center cursor-pointer absolute top-0 left-0"
+            onClick={() => setIsScanning(true)}
+          >
+            <p className="text-gray-600 text-sm">Tap to Scan</p>
+          </div>
+        ) : (
+          <video ref={videoRef} className="w-full h-full rounded-lg" />
+        )}
+      </div>
 
       <button
         onClick={handleSubmit}
