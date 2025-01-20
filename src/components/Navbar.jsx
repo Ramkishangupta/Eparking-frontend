@@ -16,7 +16,7 @@ const Navbar = () => {
             Home
           </a>
           <a
-            href="/qr-scan"
+            href="/qr"
             className="text-white hover:text-indigo-300 transition duration-200"
           >
             QR Scan

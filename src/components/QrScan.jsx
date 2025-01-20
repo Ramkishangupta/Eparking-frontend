@@ -12,7 +12,7 @@ const QRScanner = () => {
       setIsScanning(false);
     }
   };
-
+  
   const handleSubmit = async () => {
     const statusToUpdate = slotNumber && window.confirm(`Toggle status for slot ${slotNumber}?`);
 
@@ -45,7 +45,7 @@ const QRScanner = () => {
       codeReader.decodeFromVideoDevice(null, videoRef.current, (result, error) => {
         if (result) {
           handleScan(result);
-          codeReader.reset(); // Stop scanning after reading
+          codeReader.reset(); 
         }
         if (error) {
           console.error(error.message);
@@ -53,7 +53,7 @@ const QRScanner = () => {
       });
 
       return () => {
-        codeReader.reset(); // Cleanup on component unmount
+        codeReader.reset(); 
       };
     }
   }, [isScanning]);
